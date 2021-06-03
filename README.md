@@ -1,4 +1,9 @@
 # pov-ray
+
+### コードの説明
+
+
+
 - marching_cube_prof_goto_made.f90
 
   - マーチングキューブ法により，物理量の等値面を取得するプログラムです(並列化なし)
@@ -40,4 +45,12 @@
 
 - 0020000_isosurface_phi.pov
   - .povファイルです．プログラムみたいな感じです．
-  - vtkファイルみたいなノリで書いています．
+  - vtkファイルみたいなノリでfortranで書いています．
+
+### 参考にしたもの
+
+- POV-Rayによる3次元CG制作/鈴木広隆・倉田和夫・佐藤尚
+- [POV-Ray 初心者向けチュートリアル & Tips - asahi net](http://www.asahi-net.or.jp/~va5n-okmt/pov/tutorial/index.html)
+- [POV-JP-HTML-Manual-3.5](https://flex.phys.tohoku.ac.jp/texi/pov35jp/pov35ref.html)
+
+などいろいろです．
