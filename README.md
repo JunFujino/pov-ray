@@ -13,11 +13,11 @@
   - 読み込んでいる物理量のファイルは，たとえば
 
     ```fortran
-            double precision :: phi(nx_min:nx_max, ny_min:ny_max, nz_min:nz_max) ! phi: order parameter
-            write(filename5,"(a,a,a)") trim(output_dire),trim(output_next),"phi.d"
-            open(90,file=filename5,form="unformatted",status="replace")
-            write(90) phi
-            close(90)
+    double precision :: phi(nx_min:nx_max, ny_min:ny_max, nz_min:nz_max) ! phi: order parameter
+    write(filename5,"(a,a,a)") trim(output_dire),trim(output_next),"phi.d"
+    open(90,file=filename5,form="unformatted",status="replace")
+    write(90) phi
+    close(90)
     ```
   
     のように出力したバイナリ形式のファイルです．
