@@ -4,7 +4,7 @@
 
 
 
-- marching_cube_prof_goto_made.f90
+- **marching_cube_prof_goto_made.f90**
 
   - マーチングキューブ法により，物理量の等値面を取得するプログラムです(並列化なし)
 
@@ -26,24 +26,26 @@
 
   - `0000001to0020000phi_isosurface_num_points.d`はポリゴンデータの頂点の数を出力したファイルです．
 
+  - 実は，pov-rayでも物理量を読み込んで等値面を可視化出来るみたいですが．．．
+
     
 
-- mk_pov.f90
+- **mk_pov.f90**
 
-  - marching_cube.f90で出力した等値面データのファイルを読み込んで.povファイルを作るプログラムです．
+  - marching_cube_goto_made.f90で出力した等値面データのファイルを読み込んで.povファイルを作るプログラムです．
   - カメラの位置，見ている点，光源，容器などを自分で設定しています．
   - 等値面データはunionをつかって繋げていますが，他に方法はありそうです．
   - フォトンを使えばより現実的な画像が作れそうです．
 
-- march.sh
+- **march.sh**
 
   - マーチングキューブのプログラムを実行するスクリプト
 
-- mkpov.sh
+- **mkpov.sh**
 
   - .povファイルを作って，povrayでレンダリングして画像を作るスクリプト
 
-- 0020000_isosurface_phi.pov
+- **0020000_isosurface_phi.pov**
   - .povファイルです．プログラムみたいな感じです．
   - vtkファイルみたいなノリでfortranで書いています．
 
@@ -53,4 +55,4 @@
 - [POV-Ray 初心者向けチュートリアル & Tips - asahi net](http://www.asahi-net.or.jp/~va5n-okmt/pov/tutorial/index.html)
 - [POV-JP-HTML-Manual-3.5](https://flex.phys.tohoku.ac.jp/texi/pov35jp/pov35ref.html)
 
-などいろいろです．
+  などです．
