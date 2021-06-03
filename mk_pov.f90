@@ -1,7 +1,7 @@
 program main
     implicit none
     !--------------------------------------------
-    !   ファイル名
+    !   入出力ファイル名
     !--------------------------------------------
     ! character(len=120), parameter :: iodire='/data/2019/fujino/lbm/stable_droplet/phi/'
     character(len=120), parameter :: iodire='./'
@@ -9,10 +9,51 @@ program main
     character(len=120), parameter :: ofile='0020000_isosurface_phi.pov'
     character(len=120), parameter :: ifile_point="0000001to0020000phi_isosurface_num_points.d"
     !--------------------------------------------
-    !   定数と変数
+    !   定数と変数(Pov-ray用)
+    !--------------------------------------------
+    real(kind=4), parameter :: camera_x = 220.e0
+    real(kind=4), parameter :: camera_y = 200.e0
+    real(kind=4), parameter :: camera_z = -500.e0
+    real(kind=4), parameter :: look_at_x = 48.e0
+    real(kind=4), parameter :: look_at_y = 48.e0
+    real(kind=4), parameter :: look_at_z = 48.e0
+    real(kind=4), parameter :: angle = 0.e0
+    real(kind=4), parameter :: light_source_x = -200.e0
+    real(kind=4), parameter :: light_source_y = 5000.e0
+    real(kind=4), parameter :: light_source_z = -2000.e0
+    character(len=100), parameter :: mesh_smooth = 'smooth_triangle'
+    character(len=100), parameter :: mesh_normal = 'triangle'
+    logical, parameter :: smooth = .true.
+    !--------------------------------------------
+    !   定数と変数(Pov-rayの容器用)
+    !--------------------------------------------
+    real(kind=4), parameter :: cube_out_x = 48.e0
+    real(kind=4), parameter :: cube_out_y = 48.e0
+    real(kind=4), parameter :: cube_out_z = 48.e0
+    real(kind=4), parameter :: cube_in_x = 48.e0
+    real(kind=4), parameter :: cube_in_y = 50.e0
+    real(kind=4), parameter :: cube_in_z = 48.e0
+    real(kind=4), parameter :: cube_out_wid_x = 100.e0
+    real(kind=4), parameter :: cube_out_wid_y = 102.e0
+    real(kind=4), parameter :: cube_out_wid_z = 100.e0
+    real(kind=4), parameter :: cube_in_wid_x = 96.e0
+    real(kind=4), parameter :: cube_in_wid_y = 102.e0
+    real(kind=4), parameter :: cube_in_wid_z = 96.e0
+    real(kind=4), parameter :: cube_water_wid_x = 96.e0
+    real(kind=4), parameter :: cube_water_wid_y = 96.e0
+    real(kind=4), parameter :: cube_water_wid_z = 96.e0
+    real(kind=4), parameter :: cube_water_x = 48.e0
+    real(kind=4), parameter :: cube_water_y = 48.e0
+    real(kind=4), parameter :: cube_water_z = 48.e0
+    !--------------------------------------------
+    !   背景画像用
+    !--------------------------------------------
+    character(len=100), parameter :: hdr_dataname ="""room.hdr"""
+    !--------------------------------------------
+    !   定数と変数(物理量と法線ベクトルなど)
     !--------------------------------------------
     integer, parameter :: num = 4
-    integer :: point_num
+    integer :: point_num                        ! ポリゴンの頂点数
     integer :: i
     real(kind=4), allocatable :: x(:)
     real(kind=4), allocatable :: y(:)
@@ -20,22 +61,6 @@ program main
     real(kind=4), allocatable :: gx(:)
     real(kind=4), allocatable :: gy(:)
     real(kind=4), allocatable :: gz(:)
-    !--------------------------------------------
-    !   定数と変数(Pov-ray用)
-    !--------------------------------------------
-    real(kind=4), parameter :: camera_x = 150.e0
-    real(kind=4), parameter :: camera_y = 250.e0
-    real(kind=4), parameter :: camera_z = -200.e0
-    real(kind=4), parameter :: look_at_x = 80.e0
-    real(kind=4), parameter :: look_at_y = 0.e0
-    real(kind=4), parameter :: look_at_z = 200.e0
-    real(kind=4), parameter :: angle = 60.e0
-    real(kind=4), parameter :: light_source_x = -4000.e0
-    real(kind=4), parameter :: light_source_y = 16000.e0
-    real(kind=4), parameter :: light_source_z = -13000.e0
-    character(len=100), parameter :: mesh_smooth = 'smooth_triangle'
-    character(len=100), parameter :: mesh_normal = 'triangle'
-    logical, parameter :: smooth = .true.
     !--------------------------------------------
     !   ファイル用文字列
     !--------------------------------------------
@@ -75,6 +100,8 @@ program main
     !   include
     !--------------------------------------------
     write(21,"(a)") "#include""colors.inc"""
+    write(21,"(a)") "#include""textures.inc"""
+    write(21,"(a)") "#include""shapes.inc"""
     !--------------------------------------------
     !   camera & look at
     !--------------------------------------------
@@ -87,20 +114,57 @@ program main
     !   light source
     !--------------------------------------------
     write(21,"(a,f9.2,a,f9.2,a,f9.2,a)") &
-          "light_source{<",light_source_x,",",light_source_y,",",light_source_z,">color 1.2*White}"
+          "light_source{<",light_source_x,",",light_source_y,",",light_source_z,">color 1.1*White}"
     !--------------------------------------------
-    !   plane
+    !   plane(床や壁)
     !--------------------------------------------
-    write(21,"(a)") "plane{ <0,1,0>,1 pigment{checker color White color Gray  scale 40 } }"
+    ! write(21,"(a)") "plane{ y,-48 pigment{checker color White color Gray  scale 100 } }"
+    write(21,"(a)") "plane{ z,500 pigment{color White} }"
+    write(21,"(a)") "plane{ y,-48 pigment{color White} }"
+    ! write(21,"(a)") "plane{ <0,1,0>,0 pigment{checker color White color Gray  scale 40 } }"
     ! write(21,"(a)") "plane{ <0,1,0>,1 pigment{color White } }"
     ! write(21,"(a)") "plane{ <0,0,100>,-100 pigment{ color White } }"
     ! write(21,"(a)") "plane{ <0,1,0>,1 pigment{checker color White color Gray} }"
+    !--------------------------------------------
+    !   容器
+    !--------------------------------------------
+    write(21,"(a)") "difference{"
+    write(21,"(a)") "object{"
+    write(21,"(x,a)") "Cube"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
+          cube_out_wid_x,",",cube_out_wid_y,",",cube_out_wid_z,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
+          cube_out_x,",",cube_out_y,",",cube_out_z,">"
+    write(21,"(x,a)") "material { M_Glass3 }"
+    write(21,"(a)") "}"
+    write(21,"(a)") "object{"
+    write(21,"(x,a)") "Cube"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
+          cube_in_wid_x,",",cube_in_wid_y,",",cube_in_wid_z,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
+          cube_in_x,",",cube_in_y,",",cube_in_z,">"
+    write(21,"(x,a)") " material{ M_Glass3 }"
+    write(21,"(a)") "}"
+    write(21,"(a)") "}"
+    !--------------------------------------------
+    !   水
+    !--------------------------------------------
+    write(21,"(a)") "object{"
+    write(21,"(x,a)") "Cube"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
+          cube_water_wid_x,",",cube_water_wid_y,",",cube_water_wid_z,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
+          cube_water_x,",",cube_water_y,",",cube_water_z,">"
+    write(21,"(a)") "interior{ ior 1.33 caustics 0.7 }"
+    write(21,"(a)") "pigment{ color White filter 0.7 }"
+    write(21,"(a)") "finish { ambient 0.3 phong 0.6 }"
+    write(21,"(a)") "}"
     !--------------------------------------------
     !   polygons
     !--------------------------------------------
     write(21,"(a)") "union{"
     if (smooth) then
-        !-データ読み込み
+        !-データ書き込み
         do i = 1, point_num, 3
             write(21,"(a,a,6(a,f0.10,a,f0.10,a,f0.10,a),a)") trim(mesh_smooth),"{ ", &
                   "<",x(i  ),",",y(i  ),",",z(i  ),">,","<",gx(i  ),",",gy(i  ),",",gz(i  ),">,", &
@@ -109,7 +173,7 @@ program main
                   "}"
         enddo
     else
-        !-データ読み込み
+        !-データ書き込み
         do i = 1, point_num, 3
             write(21,"(a,a,3(a,f0.10,a,f0.10,a,f0.10,a),a)") trim(mesh_normal),"{ ", &
                   "<",x(i  ),",",y(i  ),",",z(i  ),">,", &
@@ -118,10 +182,22 @@ program main
                   "}"
         enddo
     endif
-    write(21,"(a)") "interior{ ior 1.33 }"
+    write(21,"(a)") "interior{ ior 1.4 caustics 0.7 }"
     write(21,"(a)") "pigment{ color White filter 0.7 }"
     write(21,"(a)") "finish { ambient 0.3 phong 0.6 }"
     write(21,"(a)") "}"
+    !--------------------------------------------
+    !   背景
+    !--------------------------------------------
+    ! write(21,"(a)") "sky_sphere{"
+    ! write(21,"(x,a)") "pigment{"
+    ! write(21,"(x,a)") "image_map{"
+    ! write(21,"(x,x,a,a)") "hdr ",hdr_dataname
+    ! write(21,"(x,x,a)") "map_type 1"
+    ! write(21,"(x,x,a)") "interpolate 2"
+    ! write(21,"(x,a)") "}"
+    ! write(21,"(x,a)") "}"
+    ! write(21,"(a)") "}"
     close(21)
     close(10)
 end program main
