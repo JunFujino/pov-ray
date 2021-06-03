@@ -110,6 +110,7 @@ program main
     write(21,"(a)") "#include""colors.inc"""
     write(21,"(a)") "#include""textures.inc"""
     write(21,"(a)") "#include""shapes.inc"""
+    write(21,"(a)") "#include""glass.inc"""
     !--------------------------------------------
     !   camera & look at
     !--------------------------------------------
@@ -126,9 +127,9 @@ program main
     !--------------------------------------------
     !   plane(床や壁)
     !--------------------------------------------
-    ! write(21,"(a)") "plane{ y,-48 pigment{checker color White color Gray  scale 100 } }"
     write(21,"(a)") "plane{ z,500 pigment{color White} }"
-    write(21,"(a)") "plane{ y,-48 pigment{color White} }"
+    write(21,"(a)") "plane{ y,-50 pigment{color White} }"
+    ! write(21,"(a)") "plane{ y,-48 pigment{checker color White color Gray  scale 100 } }"
     ! write(21,"(a)") "plane{ <0,1,0>,0 pigment{checker color White color Gray  scale 40 } }"
     ! write(21,"(a)") "plane{ <0,1,0>,1 pigment{color White } }"
     ! write(21,"(a)") "plane{ <0,0,100>,-100 pigment{ color White } }"
@@ -170,7 +171,8 @@ program main
     !--------------------------------------------
     !   polygons
     !--------------------------------------------
-    write(21,"(a)") "union{"
+    ! write(21,"(a)") "union{"
+    write(21,"(a)") "mesh{"
     if (smooth) then
         !-データ書き込み
         do i = 1, point_num, 3
@@ -190,7 +192,8 @@ program main
                   "}"
         enddo
     endif
-    write(21,"(a)") "interior{ ior 1.4 caustics 0.7 }"
+    write(21,"(a)") "texture { T_Glass3 }"
+    write(21,"(a)") "interior{ ior 1.6 caustics 0.7 }"
     write(21,"(a)") "pigment{ color White filter 0.7 }"
     write(21,"(a)") "finish { ambient 0.3 phong 0.6 }"
     write(21,"(a)") "}"
