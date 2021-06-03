@@ -1,5 +1,5 @@
 # pov-ray
-- marching_cube.f90
+- marching_cube_prof_goto_made.f90
 
   - マーチングキューブ法により，物理量の等値面を取得するプログラムです(並列化なし)
 
@@ -37,3 +37,7 @@
 - mkpov.sh
 
   - .povファイルを作って，povrayでレンダリングして画像を作るスクリプト
+
+- 0020000_isosurface_phi.pov
+  - .povファイルです．プログラムみたいな感じです．
+  - vtkファイルみたいなノリで書いています．
