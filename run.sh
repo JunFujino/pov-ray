@@ -1,3 +1,5 @@
-gfortran mk_pov_ver02.f90
+gfortran mk_pov.f90
 ./a.out
 povray +W3840 +H2880 +A0.001 0020000_isosurface_phi.pov
+#povray +W1920 +H1440 +A0.001 0020000_isosurface_phi.pov
+#povray 0020000_isosurface_phi.pov
