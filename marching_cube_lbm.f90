@@ -1,19 +1,28 @@
+!##################################################################################################
+!
+!
+!   ### マーチングキューブ法により物理量の等値面を取得するプログラム(並列化なし)###
+!   ## Ver.00 Prof. Goto made
+!   ## Ver.01 2021/05/30 Made some changes by Fujino
+!
+!
+!##################################################################################################
 !==================================================================================================
 !
-!   ## Global parameters and variables ##
+!   ## グローバル定数と変数 ##
 !
 !==================================================================================================
 module globals
     implicit none
     !----------------------------------------------------------------------------------------------
-    !   # Set constant parameter #
+    !   # 定数 #
     !----------------------------------------------------------------------------------------------
-    integer, parameter :: nx = 96                                                   ! Number of grid points
-    integer, parameter :: ny = 96                                                   ! Number of grid points
-    integer, parameter :: nz = 96                                                   ! Number of grid points
+    integer, parameter :: nx = 96                                                   ! 格子点数
+    integer, parameter :: ny = 96                                                   ! 格子点数
+    integer, parameter :: nz = 96                                                   ! 格子点数
     integer, parameter :: sstep = 1                                                 ! Start step
     integer, parameter :: estep = 20000                                             ! End step
-    integer, parameter :: output_step = 5000                                        ! Output frequency
+    integer, parameter :: output_step = 20000                                       ! 出力間隔
     integer, parameter :: step_start = output_step + sstep - 1
     integer, parameter :: step_end = estep
     integer, parameter :: nstep = estep - sstep + 1
@@ -32,30 +41,30 @@ module globals
     double precision, parameter :: xmin = 0.d0, ymin = 0.d0, zmin = 0.d0
     double precision, parameter :: pi = 4.d0 * atan(1.d0)                           ! pi
     !----------------------------------------------------------------------------------------------
-    !   # Set Filename #
+    !   # ファイル名 #
     !----------------------------------------------------------------------------------------------
     character(len=120), parameter :: data_scal = "phi"
-    character(len=120), parameter :: input_dire_scal = "/data/2019/fujino/lbm/stable_droplet/phi/"
-    character(len=120), parameter :: output_dire_cont = "/data/2019/fujino/lbm/stable_droplet/phi/"
+    character(len=120), parameter :: input_dire_scal = "./"
+    character(len=120), parameter :: output_dire_cont = "./"
     integer, parameter :: file_all = nstep / output_step
     integer, save :: file_num_now
     !----------------------------------------------------------------------------------------------
-    !   # Set constant parameter | calculation of phi #
+    !   # 等値面の閾値 v0 #
     !----------------------------------------------------------------------------------------------
     double precision, parameter :: phi_min_tmp = 2.638d-1               ![phi0]^1
     double precision, parameter :: phi_max_tmp = 4.031d-1               ![phi0]^1
     double precision, parameter :: v0 = ( phi_max_tmp + phi_min_tmp ) * 0.5d0
     !----------------------------------------------------------------------------------------------
-    !   # Global variables #
+    !   # グローバル変数 #
     !----------------------------------------------------------------------------------------------
-    integer, save :: istep, iread                   ! Current time step
+    integer, save :: istep, iread
     integer :: alpha, beta                          ! Variables for loops
     integer :: i,j,k,l,m,o,m1,m2,o1,o2              ! Variables for loops
     integer :: itr                                  ! Variable for iteration
 end module globals
 !==================================================================================================
 !
-!   ## Marching cube ##
+!   ## Marching cube法 ##
 !
 !==================================================================================================
 module marching_cube
@@ -66,7 +75,7 @@ module marching_cube
     public mc
     contains
 !==================================================================================================
-!   ## Main subroutine of marching cube method  ##
+!   ## メインルーチン  ##
 !==================================================================================================
     subroutine mc(ifile,ofile,tmp_sum)
         character(*), intent(in) :: ifile,ofile
@@ -88,7 +97,7 @@ module marching_cube
         v(0:nx,0:ny,0:nz) = v_read(0:nx,0:ny,0:nz)
         close(10)
         deallocate(v_read)
-        !-座標の設定
+        !-座標の設定:等間隔格子
         do iread = 0, nx
             x(iread)= xmin + ds*dble(iread)
         end do
@@ -199,7 +208,7 @@ module marching_cube
         close (21)
     end subroutine mc
 !==================================================================================================
-!   ## Interpolation ##
+!   ## 補間 ##
 !==================================================================================================
     subroutine interpolation(xc,yc,zc,vc,p1,p2,xt,yt,zt)
         integer, intent(in) :: p1,p2
@@ -212,7 +221,7 @@ module marching_cube
         zt=zc(p1)+c*(zc(p2)-zc(p1))
     end subroutine interpolation
 !==================================================================================================
-!   ## Normal ##
+!   ## 法線ベクトル ##
 !==================================================================================================
     subroutine normal(x,y,z,v,gx,gy,gz)
         double precision, intent(in) :: x(0:nx)
@@ -222,7 +231,7 @@ module marching_cube
         double precision, dimension(0:nx,0:ny,0:nz), intent(out) :: gx,gy,gz
         double precision :: s1,s2
         integer :: ix,iy,iz
-        !-x微分
+        !-x微分:x方向の端のみ別扱い
         ix=0
         do iz=0,nz
         do iy=0,ny
@@ -246,7 +255,7 @@ module marching_cube
             gx(ix,iy,iz)=(v(ix,iy,iz)-v(ix-1,iy,iz))/(x(ix)-x(ix-1))
         end do
         end do
-        !-y微分
+        !-y微分:y方向の端のみ別扱い
         iy=0
         do iz=0,nz
         do ix=0,nx
@@ -270,7 +279,7 @@ module marching_cube
             gy(ix,iy,iz)=(v(ix,iy,iz)-v(ix,iy-1,iz))/(y(iy)-y(iy-1))
         end do
         end do
-        !-z微分
+        !-z微分:y方向の端のみ別扱い
         iz=0
         do iy=0,ny
         do ix=0,nx
@@ -585,7 +594,7 @@ program main
     character(len=100) write_dataname
     character(len=150) write_dataname_points
     !----------------------------------------------------------------------------------------------
-    !   # Time development for each procs #
+    !   # 時間発展 #
     !----------------------------------------------------------------------------------------------
     file_num_now = 0
     allocate(num_points_step_all(1:file_all))
@@ -597,13 +606,13 @@ program main
         write(write_dataname,"(a,i7.7,a,a,a)") trim(output_dire_cont),istep,"_isosurface_",trim(data_scal),".d"
         call mc(read_dataname,write_dataname,num_points)
         !------------------------------------------------------------------------------------------
-        !   # Stock the number of points #
+        !   # 頂点数を取得 #
         !------------------------------------------------------------------------------------------
         file_num_now = file_num_now + 1
         num_points_step_all(file_num_now) = num_points
     enddo
     !----------------------------------------------------------------------------------------------
-    !   # Output the number of coordinates of points for polygons #
+    !   # 頂点数を出力 #
     !----------------------------------------------------------------------------------------------
     write(write_dataname_points,"(a,i7.7,a,i7.7,a,a)") trim(output_dire_cont),sstep,"to",estep,&
                                                        trim(data_scal),"_isosurface_num_points.d"
