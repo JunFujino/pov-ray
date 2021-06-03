@@ -8,28 +8,24 @@
 
   - マーチングキューブ法により，物理量の等値面を取得するプログラムです(並列化なし)
     
-
-  - 直交格子なら多分簡単にできます．（等間隔じゃなくてもできます）
+- 直交格子なら多分簡単にできます．（等間隔じゃなくてもできます）
     
-
   - 読み込んでいる物理量のファイルは，たとえば
 
     ```fortran
-            double precision :: phi(nx_min:nx_max, ny_min:ny_max, nz_min:nz_max) ! phi: order parameter
+          double precision :: phi(nx_min:nx_max, ny_min:ny_max, nz_min:nz_max) ! phi: order parameter
             write(filename5,"(a,a,a)") trim(output_dire),trim(output_next),"phi.d"
             open(90,file=filename5,form="unformatted",status="replace")
             write(90) phi
             close(90)
     ```
-
+  
     のように出力したバイナリ形式のファイルです．
-    
-
+  
   - ここでは，`0020000_phi.d`を読み込んで`0020000_isosurface_phi.d`と`0000001to0020000phi_isosurface_num_points.d`を出力しています．
     
-
-  - `0000001to0020000phi_isosurface_num_points.d`はポリゴンデータの頂点の数を出力したファイルです．
-
+- `0000001to0020000phi_isosurface_num_points.d`はポリゴンデータの頂点の数を出力したファイルです．
+  
     
 
   - 実は，pov-rayでも物理量を読み込んで等値面を可視化出来るみたいですが．．．
@@ -40,21 +36,20 @@
 
   - marching_cube_goto_made.f90で出力した等値面データのファイルを読み込んで.povファイルを作るプログラムです．
     
+- カメラの位置，見ている点，光源，容器などを自分で設定して可視化しています．
+    
+  - 等値面データはunion（和集合）をつかって繋げていますが，なくても良さそうです．他にも方法はありそうで，検討中です．
 
-  - カメラの位置，見ている点，光源，容器などを自分で設定して可視化しています．
     
 
-  - 等値面データはunion（和集合）をつかって繋げていますが，他に方法はありそうです．
-
-    
-
-  - フォトンを使えばより現実的な画像が作れそうです．
+  - フォトンを使えばより現実的な画像が作れそうです
 
     
 
 - **march.sh**
 
   - マーチングキューブのプログラムを実行するスクリプト
+
     
 
 - **mkpov.sh**
@@ -68,11 +63,11 @@
     
   - ここでは，vtkファイルを作るみたいなノリでfortranのwrite文で書いています．
 
-  
-
   - .povファイルを`povray hoge.pov`のように実行すれば，あとは勝手にレンダリングされます．
-    
+
   - WindowsはGUIでやるみたいですが，LinuxではCUI上で実行するだけなのでシンプルで簡単です．
+  
+    
 
 ### 参考にしたもの
 
