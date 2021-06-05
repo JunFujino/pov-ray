@@ -20,8 +20,8 @@ program main
     !   定数と変数(Pov-ray用)
     !--------------------------------------------
     real(kind=4), parameter :: camera_x = 220.e0
-    real(kind=4), parameter :: camera_y = 200.e0
-    real(kind=4), parameter :: camera_z = -500.e0
+    real(kind=4), parameter :: camera_y = 150.e0
+    real(kind=4), parameter :: camera_z = -300.e0
     real(kind=4), parameter :: look_at_x = 48.e0
     real(kind=4), parameter :: look_at_y = 48.e0
     real(kind=4), parameter :: look_at_z = 48.e0
@@ -35,24 +35,24 @@ program main
     !--------------------------------------------
     !   定数と変数(Pov-rayの容器用)
     !--------------------------------------------
-    real(kind=4), parameter :: cube_out_x = 48.e0
-    real(kind=4), parameter :: cube_out_y = 48.e0
-    real(kind=4), parameter :: cube_out_z = 48.e0
-    real(kind=4), parameter :: cube_in_x = 48.e0
-    real(kind=4), parameter :: cube_in_y = 50.e0
-    real(kind=4), parameter :: cube_in_z = 48.e0
-    real(kind=4), parameter :: cube_out_wid_x = 100.e0
-    real(kind=4), parameter :: cube_out_wid_y = 102.e0
-    real(kind=4), parameter :: cube_out_wid_z = 100.e0
-    real(kind=4), parameter :: cube_in_wid_x = 96.e0
-    real(kind=4), parameter :: cube_in_wid_y = 102.e0
-    real(kind=4), parameter :: cube_in_wid_z = 96.e0
-    real(kind=4), parameter :: cube_water_wid_x = 96.e0
-    real(kind=4), parameter :: cube_water_wid_y = 96.e0
-    real(kind=4), parameter :: cube_water_wid_z = 96.e0
-    real(kind=4), parameter :: cube_water_x = 48.e0
-    real(kind=4), parameter :: cube_water_y = 48.e0
-    real(kind=4), parameter :: cube_water_z = 48.e0
+    real(kind=4), parameter :: box_out_x0 = -3.e0
+    real(kind=4), parameter :: box_out_y0 = -3.e0
+    real(kind=4), parameter :: box_out_z0 = -3.e0
+    real(kind=4), parameter :: box_out_x1 = 99.e0
+    real(kind=4), parameter :: box_out_y1 = 99.e0
+    real(kind=4), parameter :: box_out_z1 = 99.e0
+    real(kind=4), parameter :: box_in_x0 = 0.e0
+    real(kind=4), parameter :: box_in_y0 = 0.e0
+    real(kind=4), parameter :: box_in_z0 = 0.e0
+    real(kind=4), parameter :: box_in_x1 = 96.e0
+    real(kind=4), parameter :: box_in_y1 = 102.e0
+    real(kind=4), parameter :: box_in_z1 = 96.e0
+    real(kind=4), parameter :: water_x0 = 0.e0
+    real(kind=4), parameter :: water_y0 = 0.e0
+    real(kind=4), parameter :: water_z0 = 0.e0
+    real(kind=4), parameter :: water_x1 = 96.e0
+    real(kind=4), parameter :: water_y1 = 96.e0
+    real(kind=4), parameter :: water_z1 = 96.e0
     !--------------------------------------------
     !   背景画像用
     !--------------------------------------------
@@ -111,6 +111,7 @@ program main
     write(21,"(a)") "#include""textures.inc"""
     write(21,"(a)") "#include""shapes.inc"""
     write(21,"(a)") "#include""glass.inc"""
+    write(21,"(a)") "global_settings{ max_trace_level 100 }"
     !--------------------------------------------
     !   camera & look at
     !--------------------------------------------
@@ -128,7 +129,7 @@ program main
     !   plane(床や壁)
     !--------------------------------------------
     write(21,"(a)") "plane{ z,500 pigment{color White} }"
-    write(21,"(a)") "plane{ y,-50 pigment{color White} }"
+    write(21,"(a)") "plane{ y,-3 pigment{color White} }"
     ! write(21,"(a)") "plane{ y,-48 pigment{checker color White color Gray  scale 100 } }"
     ! write(21,"(a)") "plane{ <0,1,0>,0 pigment{checker color White color Gray  scale 40 } }"
     ! write(21,"(a)") "plane{ <0,1,0>,1 pigment{color White } }"
@@ -139,31 +140,34 @@ program main
     !--------------------------------------------
     write(21,"(a)") "difference{"
     write(21,"(a)") "object{"
-    write(21,"(x,a)") "Cube"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
-          cube_out_wid_x,",",cube_out_wid_y,",",cube_out_wid_z,">"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
-          cube_out_x,",",cube_out_y,",",cube_out_z,">"
+    write(21,"(x,a)") "box{"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          box_out_x0,",",box_out_y0,",",box_out_z0,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          box_out_x1,",",box_out_y1,",",box_out_z1,">"
+    write(21,"(a)") "}"
     write(21,"(x,a)") "material { M_Glass3 }"
     write(21,"(a)") "}"
     write(21,"(a)") "object{"
-    write(21,"(x,a)") "Cube"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
-          cube_in_wid_x,",",cube_in_wid_y,",",cube_in_wid_z,">"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
-          cube_in_x,",",cube_in_y,",",cube_in_z,">"
-    write(21,"(x,a)") " material{ M_Glass3 }"
+    write(21,"(x,a)") "box{"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          box_in_x0,",",box_in_y0,",",box_in_z0,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          box_in_x1,",",box_in_y1,",",box_in_z1,">"
+    write(21,"(a)") "}"
+    write(21,"(x,a)") "material{ M_Glass3 }"
     write(21,"(a)") "}"
     write(21,"(a)") "}"
     !--------------------------------------------
     !   水
     !--------------------------------------------
     write(21,"(a)") "object{"
-    write(21,"(x,a)") "Cube"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "scale <", &
-          cube_water_wid_x,",",cube_water_wid_y,",",cube_water_wid_z,">"
-    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "translate <", &
-          cube_water_x,",",cube_water_y,",",cube_water_z,">"
+    write(21,"(x,a)") "box{"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          water_x0,",",water_y0,",",water_z0,">"
+    write(21,"(x,a,f9.2,a,f9.2,a,f9.2,a)") "<", &
+          water_x1,",",water_y1,",",water_z1,">"
+    write(21,"(a)") "}"
     write(21,"(a)") "interior{ ior 1.33 caustics 0.7 }"
     write(21,"(a)") "pigment{ color White filter 0.7 }"
     write(21,"(a)") "finish { ambient 0.3 phong 0.6 }"
@@ -192,10 +196,8 @@ program main
                   "}"
         enddo
     endif
-    write(21,"(a)") "texture { T_Glass3 }"
-    write(21,"(a)") "interior{ ior 1.6 caustics 0.7 }"
-    write(21,"(a)") "pigment{ color White filter 0.7 }"
-    write(21,"(a)") "finish { ambient 0.3 phong 0.6 }"
+    write(21,"(a)") "material{ M_Glass3 }"
+    write(21,"(a)") "interior{ I_Glass ior 1.6 caustics 0.7 }"
     write(21,"(a)") "}"
     !--------------------------------------------
     !   背景
